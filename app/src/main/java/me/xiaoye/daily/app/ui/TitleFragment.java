@@ -3,6 +3,7 @@ package me.xiaoye.daily.app.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -27,8 +28,11 @@ public class TitleFragment extends BaseFragment {
     RecyclerView recyclerView;
 
     TitleListAdapter titleListAdapter;
-    private LinearLayoutManager layoutManager;
+    @Bind(R.id.content_sp)
+    SwipeRefreshLayout swipeRefreshLayout;
 
+    private LinearLayoutManager layoutManager;
+    private String latestUrl;
 
     @Nullable
     @Override
@@ -36,6 +40,7 @@ public class TitleFragment extends BaseFragment {
         View v = inflater.inflate(R.layout.fragment_main, container, false);
         ButterKnife.bind(this, v);
         initRecyclerView();
+        initSwipeRefresh();
         return v;
     }
 
@@ -43,9 +48,8 @@ public class TitleFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
         Bundle bundle = getArguments();
-        String str = bundle.getString("data");
-        Log.d("data", str);
-        new NetTask(titleListAdapter).execute(str);
+        latestUrl = bundle.getString("data");
+        new NetTask(titleListAdapter, swipeRefreshLayout).execute(latestUrl);
     }
 
     private void onScroll() {
@@ -53,9 +57,12 @@ public class TitleFragment extends BaseFragment {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE && isToBottom()) {
-                    /*NetTask netTask = new NetTask(titleListAdapter);
-                    NetTask.add(netTask);
-                    netTask.execute(Constants.ZHIHU_OLD + DateUtil.nextDate());*/
+                    if (latestUrl.contains("latest")) {
+                        NetTask netTask = new NetTask(titleListAdapter, swipeRefreshLayout);
+                        NetTask.add(netTask);
+                        netTask.execute(Constants.ZHIHU_OLD + DateUtil.nextDate());
+                        swipeRefreshLayout.setRefreshing(true);
+                    }
                 } else {
                     BaseTask.cancelAll();
                 }
@@ -95,5 +102,21 @@ public class TitleFragment extends BaseFragment {
     public void onDestroy() {
         super.onDestroy();
         ButterKnife.unbind(this);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+    }
+
+    private void initSwipeRefresh() {
+        swipeRefreshLayout.setColorSchemeColors(R.color.primary, R.color.primary_dark);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new NetTask(titleListAdapter, swipeRefreshLayout).execute(latestUrl);
+            }
+        });
     }
 }

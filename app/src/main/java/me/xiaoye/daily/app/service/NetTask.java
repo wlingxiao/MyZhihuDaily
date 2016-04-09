@@ -1,5 +1,7 @@
 package me.xiaoye.daily.app.service;
 
+import android.support.v4.widget.SwipeRefreshLayout;
+
 import java.util.List;
 
 import me.xiaoye.daily.app.model.LatestModel;
@@ -9,9 +11,11 @@ import me.xiaoye.daily.app.ui.adapter.TitleListAdapter;
 public class NetTask extends BaseTask<String, Void, List<LatestModel.Stories>> {
 
     private TitleListAdapter titleListAdapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
-    public NetTask(TitleListAdapter titleListAdapter) {
+    public NetTask(TitleListAdapter titleListAdapter, SwipeRefreshLayout swipeRefreshLayout) {
         this.titleListAdapter = titleListAdapter;
+        this.swipeRefreshLayout = swipeRefreshLayout;
     }
 
     private NetService netService = new NetService();
@@ -30,7 +34,7 @@ public class NetTask extends BaseTask<String, Void, List<LatestModel.Stories>> {
     protected void onPostExecute(List<LatestModel.Stories> s) {
         titleListAdapter.setList(s);
         titleListAdapter.notifyDataSetChanged();
+        swipeRefreshLayout.setRefreshing(false);
     }
-
 
 }

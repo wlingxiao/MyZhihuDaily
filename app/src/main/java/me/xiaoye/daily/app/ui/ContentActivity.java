@@ -31,6 +31,7 @@ public class ContentActivity extends BaseActivity {
         ButterKnife.bind(this);
         webView.getSettings().setUseWideViewPort(true);
         webView.getSettings().setLoadWithOverviewMode(true);
+        webView.getSettings().setTextZoom(300);
         BaseTask<String, Void, ContentModel> task = new ContentTask(this);
         task.execute(Constants.ZHIHU_CONTENT + getIntent().getIntExtra("id", 0));
     }
@@ -46,6 +47,6 @@ public class ContentActivity extends BaseActivity {
 
     public void setDate(ContentModel s) {
         Glide.with(this).load(s.getImage()).into(imageView);
-        webView.loadData(s.getBody(), "text/html;charset=UTF-8", null);
+        webView.loadDataWithBaseURL("file:///android_asset/",Constants.CSS + s.getBody(), "text/html;charset=UTF-8", "UTF-8", null);
     }
 }

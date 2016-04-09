@@ -6,9 +6,10 @@ import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class MainActivity extends BaseActivity {
     DrawerLayout drawerLayout;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,15 +47,24 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initToolbar() {
-        toolbar.setNavigationIcon(R.mipmap.ic_launcher);//设置导航栏图标
-        toolbar.setTitle("Title");//设置主标题
-        toolbar.setSubtitle("Subtitle");//设置子标题
+        //toolbar.setNavigationIcon(R.mipmap.ic_launcher); 设置导航栏图标
+        //toolbar.setTitle("Title");//设置主标题
+        //toolbar.setSubtitle("Subtitle");//设置子标题
+        toolbar.setTitle("主页");
         toolbar.inflateMenu(R.menu.toolbar_menu);//设置右上角的填充菜单
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 return false;
 
+            }
+        });
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawerLayout.openDrawer(Gravity.LEFT);
+                ;
             }
         });
     }
@@ -68,27 +79,29 @@ public class MainActivity extends BaseActivity {
     public void initNavigationView(final List<ThemesModel.Others> others) {
         Menu menu = navigationView.getMenu();
         for (ThemesModel.Others other : others) {
-            menu.add(other.getName());
+            menu.add(R.id.theme_group, other.getId(), Menu.NONE, other.getName());
         }
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
-                for (ThemesModel.Others other : others) {
-                    if (item.getTitle().equals(other.getName())) {
-                        Fragment fragment = new TitleFragment();
-                        Bundle bundle = new Bundle();
-                        bundle.putString("data", Constants.ZHIHU_THEMES_CONTENT+other.getId());
-                        fragment.setArguments(bundle);
-                        replaceFragment(fragment);
-                        drawerLayout.closeDrawers();
-                    }
+                if (item.getItemId() != R.id.home_page) {
+                    toolbar.setTitle(item.getTitle());
+                    Fragment fragment = new TitleFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("data", Constants.ZHIHU_THEMES_CONTENT + item.getItemId());
+                    fragment.setArguments(bundle);
+                    replaceFragment(fragment);
+                } else {
+                    toolbar.setTitle("主页");
+                    addFragment();
                 }
+                drawerLayout.closeDrawers();
                 return true;
             }
         });
     }
 
-    private void addFragment(){
+    private void addFragment() {
         Fragment fragment = new TitleFragment();
         Bundle bundle = new Bundle();
         bundle.putString("data", Constants.ZHIHU_LATEST);
@@ -98,7 +111,7 @@ public class MainActivity extends BaseActivity {
         transaction.commit();
     }
 
-    private void replaceFragment(Fragment fragment){
+    private void replaceFragment(Fragment fragment) {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.main_fl, fragment);
         transaction.commit();

@@ -10,5 +10,6 @@ public class Constants {
     public final static String ZHIHU_CONTENT = "http://news-at.zhihu.com/api/4/news/";
     public final static String ZHIHU_THEMES= "http://news-at.zhihu.com/api/4/themes";
     public final static String ZHIHU_THEMES_CONTENT= "http://news-at.zhihu.com/api/4/theme/";
+    public final static String CSS = "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />";
 
 }

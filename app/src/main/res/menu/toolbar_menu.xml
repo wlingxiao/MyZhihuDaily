@@ -4,10 +4,10 @@
 
     <item
         android:title="item1"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="collapseActionView" />
 
     <item
         android:title="item2"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="collapseActionView" />
 
 </menu>
