@@ -1,6 +1,7 @@
 package me.xiaoye.daily.app.ui;
 
 import android.os.Bundle;
+import android.support.v4.widget.NestedScrollView;
 import android.webkit.WebView;
 import android.widget.ImageView;
 
@@ -24,6 +25,9 @@ public class ContentActivity extends BaseActivity {
     @Bind(R.id.content_iv)
     ImageView imageView;
 
+    @Bind(R.id.content_scroll_view)
+    NestedScrollView nestedScrollView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +38,7 @@ public class ContentActivity extends BaseActivity {
         webView.getSettings().setTextZoom(300);
         BaseTask<String, Void, ContentModel> task = new ContentTask(this);
         task.execute(Constants.ZHIHU_CONTENT + getIntent().getIntExtra("id", 0));
+
     }
 
 

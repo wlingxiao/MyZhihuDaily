@@ -5,9 +5,6 @@ import java.util.List;
 import me.xiaoye.daily.app.model.ThemesModel;
 import me.xiaoye.daily.app.ui.MainActivity;
 
-/**
- * Created by VAIO on 2016/4/8.
- */
 public class MenuItemTask extends BaseTask<String, Void, List<ThemesModel.Others>> {
 
     private MainActivity mainActivity;

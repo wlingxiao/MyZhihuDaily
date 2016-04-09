@@ -116,4 +116,6 @@ public class MainActivity extends BaseActivity {
         transaction.replace(R.id.main_fl, fragment);
         transaction.commit();
     }
+
+
 }

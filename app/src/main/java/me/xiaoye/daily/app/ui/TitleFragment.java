@@ -11,9 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.List;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.xiaoye.daily.app.R;
+import me.xiaoye.daily.app.model.LatestModel;
 import me.xiaoye.daily.app.service.BaseTask;
 import me.xiaoye.daily.app.service.NetTask;
 import me.xiaoye.daily.app.ui.adapter.TitleListAdapter;
@@ -49,7 +52,7 @@ public class TitleFragment extends BaseFragment {
         super.onStart();
         Bundle bundle = getArguments();
         latestUrl = bundle.getString("data");
-        new NetTask(titleListAdapter, swipeRefreshLayout).execute(latestUrl);
+        new NetTask(this).execute(latestUrl);
     }
 
     private void onScroll() {
@@ -58,10 +61,10 @@ public class TitleFragment extends BaseFragment {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE && isToBottom()) {
                     if (latestUrl.contains("latest")) {
-                        NetTask netTask = new NetTask(titleListAdapter, swipeRefreshLayout);
+                        NetTask netTask = new NetTask(TitleFragment.this);
                         NetTask.add(netTask);
                         netTask.execute(Constants.ZHIHU_OLD + DateUtil.nextDate());
-                        swipeRefreshLayout.setRefreshing(true);
+                        startRefresh();
                     }
                 } else {
                     BaseTask.cancelAll();
@@ -115,8 +118,22 @@ public class TitleFragment extends BaseFragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                new NetTask(titleListAdapter, swipeRefreshLayout).execute(latestUrl);
+                new NetTask(TitleFragment.this).execute(latestUrl);
             }
         });
+    }
+
+    public void cancelRefresh() {
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+
+    public void startRefresh() {
+        swipeRefreshLayout.setRefreshing(true);
+    }
+
+    public void notifyAdapterDateSetChanged(List<LatestModel.Stories> list) {
+        titleListAdapter.setList(list);
+        titleListAdapter.notifyDataSetChanged();
     }
 }
