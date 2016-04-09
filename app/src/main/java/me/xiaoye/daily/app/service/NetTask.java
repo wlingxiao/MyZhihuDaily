@@ -1,17 +1,12 @@
 package me.xiaoye.daily.app.service;
 
-import android.os.AsyncTask;
-
-import java.util.HashSet;
 import java.util.List;
 
 import me.xiaoye.daily.app.model.LatestModel;
 import me.xiaoye.daily.app.ui.adapter.TitleListAdapter;
 
 
-public class NetTask extends AsyncTask<String, Void, List<LatestModel.Stories>> {
-
-    private static HashSet<NetTask> hashSet = new HashSet<>();
+public class NetTask extends BaseTask<String, Void, List<LatestModel.Stories>> {
 
     private TitleListAdapter titleListAdapter;
 
@@ -23,7 +18,7 @@ public class NetTask extends AsyncTask<String, Void, List<LatestModel.Stories>> 
 
     @Override
     protected void onPreExecute() {
-        hashSet.add(this);
+        BaseTask.add(this);
     }
 
     @Override
@@ -37,22 +32,5 @@ public class NetTask extends AsyncTask<String, Void, List<LatestModel.Stories>> 
         titleListAdapter.notifyDataSetChanged();
     }
 
-    public static void remove(NetTask netTask) {
-        if (hashSet.contains(netTask)) {
-            hashSet.remove(netTask);
-        }
-    }
 
-    public static void add(NetTask netTask) {
-        hashSet.add(netTask);
-    }
-
-    public static void cancelAll() {
-        for (NetTask i : hashSet) {
-            if (!i.isCancelled()) {
-                i.cancel(true);
-                remove(i);
-            }
-        }
-    }
 }

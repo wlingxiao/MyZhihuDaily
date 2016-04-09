@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +37,12 @@ public class TitleListAdapter extends RecyclerView.Adapter<TitleListAdapter.MyVi
     @Override
     public void onBindViewHolder(MyViewHolder holder, final int position) {
         holder.textView.setText(stringList.get(position).getTitle());
+        String image = stringList.get(position).getImage();
         Glide.with(context)
-                .load(stringList.get(position).getImage())
+                .load(image)
+                .placeholder(R.drawable.bunny)
                 .into(holder.imageView);
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

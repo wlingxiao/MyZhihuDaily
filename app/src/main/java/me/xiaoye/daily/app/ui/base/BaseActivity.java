@@ -1,4 +1,4 @@
-package me.xiaoye.daily.app.ui;
+package me.xiaoye.daily.app.ui.base;
 
 import android.support.v7.app.AppCompatActivity;
 

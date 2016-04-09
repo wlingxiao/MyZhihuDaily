@@ -1,6 +1,5 @@
 package me.xiaoye.daily.app.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.webkit.WebView;
 import android.widget.ImageView;
@@ -11,7 +10,9 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.xiaoye.daily.app.R;
 import me.xiaoye.daily.app.model.ContentModel;
+import me.xiaoye.daily.app.service.BaseTask;
 import me.xiaoye.daily.app.service.ContentTask;
+import me.xiaoye.daily.app.ui.base.BaseActivity;
 import me.xiaoye.daily.app.util.Constants;
 
 
@@ -30,15 +31,17 @@ public class ContentActivity extends BaseActivity {
         ButterKnife.bind(this);
         webView.getSettings().setUseWideViewPort(true);
         webView.getSettings().setLoadWithOverviewMode(true);
-        ContentTask contentTask = new ContentTask(this);
-        contentTask.execute("http://news-at.zhihu.com/api/4/news/" + getIntent().getIntExtra("id", 0));
+        BaseTask<String, Void, ContentModel> task = new ContentTask(this);
+        task.execute(Constants.ZHIHU_CONTENT + getIntent().getIntExtra("id", 0));
     }
 
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        BaseTask.cancelAll();
         ButterKnife.unbind(this);
+
     }
 
     public void setDate(ContentModel s) {

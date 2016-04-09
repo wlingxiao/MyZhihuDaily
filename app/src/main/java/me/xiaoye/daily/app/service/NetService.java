@@ -11,6 +11,7 @@ import java.util.List;
 
 import me.xiaoye.daily.app.helper.NetHelper;
 import me.xiaoye.daily.app.model.LatestModel;
+import me.xiaoye.daily.app.model.ThemesModel;
 
 public class NetService {
     private NetHelper netHelper = NetHelper.getInstance();
@@ -27,17 +28,33 @@ public class NetService {
                 stories.setImage(latestImageLoader(jsonArray.getJSONObject(i++)));
             }
             return latestModel.getStories();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public String latestImageLoader(JSONObject jsonObject) throws JSONException {
-        JSONArray jsonArray = jsonObject.getJSONArray("images");
-        return jsonArray.getString(0);
+    public String latestImageLoader(JSONObject jsonObject) {
+        JSONArray jsonArray = null;
+        try {
+            jsonArray = jsonObject.getJSONArray("images");
+            return jsonArray.getString(0);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return "images";
+        }
+    }
+
+    public List<ThemesModel.Others> loadMenuItem(String url) {
+        Gson gson = new Gson();
+        try {
+            String s = netHelper.loadUrl(url);
+            ThemesModel themesModel = gson.fromJson(s, ThemesModel.class);
+            return themesModel.getOthers();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

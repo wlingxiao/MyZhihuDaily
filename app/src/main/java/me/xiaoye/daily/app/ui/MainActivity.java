@@ -1,78 +1,61 @@
 package me.xiaoye.daily.app.ui;
 
-import android.content.Intent;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.FrameLayout;
+
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.xiaoye.daily.app.R;
+import me.xiaoye.daily.app.model.ThemesModel;
+import me.xiaoye.daily.app.service.MenuItemTask;
 import me.xiaoye.daily.app.service.NetTask;
-import me.xiaoye.daily.app.ui.adapter.TitleListAdapter;
+import me.xiaoye.daily.app.ui.base.BaseActivity;
 import me.xiaoye.daily.app.util.Constants;
 
 public class MainActivity extends BaseActivity {
-
-    @Bind(R.id.main_list)
-    RecyclerView recyclerView;
-
-    TitleListAdapter titleListAdapter;
-    private LinearLayoutManager layoutManager;
-
-
+    private final static String TAG = "MainActivity";
+    @Bind(R.id.main_fl)
+    FrameLayout mainFl;
+    @Bind(R.id.navigation_view)
+    NavigationView navigationView;
+    @Bind(R.id.drawer_layout)
+    DrawerLayout drawerLayout;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        recyclerView.setHasFixedSize(true);
-        titleListAdapter = new TitleListAdapter();
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(titleListAdapter);
-        onScroll();
-        titleListAdapter.setOnClickListener(new TitleListAdapter.OnClickListener() {
-            @Override
-            public void onClick(View view, int itemId, int id) {
-                Intent intent = new Intent(MainActivity.this, ContentActivity.class);
-                intent.putExtra("id", id);
-                startActivity(intent);
-            }
-        });
+        initToolbar();
+        addFragment();
+        new MenuItemTask(this).execute(Constants.ZHIHU_THEMES);
 
-        NetTask netTask = new NetTask(titleListAdapter);
-        NetTask.add(netTask);
-        netTask.execute(Constants.ZHIHU_LATEST);
     }
 
-    private void onScroll(){
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+    private void initToolbar() {
+        toolbar.setNavigationIcon(R.mipmap.ic_launcher);//设置导航栏图标
+        toolbar.setTitle("Title");//设置主标题
+        toolbar.setSubtitle("Subtitle");//设置子标题
+        toolbar.inflateMenu(R.menu.toolbar_menu);//设置右上角的填充菜单
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE && isToBottom()) {
-                    NetTask netTask = new NetTask(titleListAdapter);
-                    NetTask.add(netTask);
-                    netTask.execute(Constants.ZHIHU_OLD);
-                } else {
-                    NetTask.cancelAll();
-                }
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            public boolean onMenuItemClick(MenuItem item) {
+                return false;
 
             }
         });
-    }
-
-    private boolean isToBottom() {
-        if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.getItemCount() - 1){
-            return true;
-        }
-        return false;
     }
 
     @Override
@@ -80,5 +63,44 @@ public class MainActivity extends BaseActivity {
         super.onDestroy();
         ButterKnife.unbind(this);
         NetTask.cancelAll();
+    }
+
+    public void initNavigationView(final List<ThemesModel.Others> others) {
+        Menu menu = navigationView.getMenu();
+        for (ThemesModel.Others other : others) {
+            menu.add(other.getName());
+        }
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                for (ThemesModel.Others other : others) {
+                    if (item.getTitle().equals(other.getName())) {
+                        Fragment fragment = new TitleFragment();
+                        Bundle bundle = new Bundle();
+                        bundle.putString("data", Constants.ZHIHU_THEMES_CONTENT+other.getId());
+                        fragment.setArguments(bundle);
+                        replaceFragment(fragment);
+                        drawerLayout.closeDrawers();
+                    }
+                }
+                return true;
+            }
+        });
+    }
+
+    private void addFragment(){
+        Fragment fragment = new TitleFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("data", Constants.ZHIHU_LATEST);
+        fragment.setArguments(bundle);
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.main_fl, fragment);
+        transaction.commit();
+    }
+
+    private void replaceFragment(Fragment fragment){
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.main_fl, fragment);
+        transaction.commit();
     }
 }
